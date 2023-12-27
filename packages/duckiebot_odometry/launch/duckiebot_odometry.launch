@@ -1,0 +1,9 @@
+<launch>
+    <node name="wheel_tick_pub_node" pkg="odometry_hw" type="wheel_tick_pub.py" output="screen" />
+    <node name="odom_graph_node" pkg="odometry_hw" type="odom_graph.py" output="screen" />
+    <node name="duckiebot_odom_node" pkg="duckiebot_odometry" type="duckiebot_pose.py" output="screen" />
+    <node name="distance_conversion_node" pkg="learning_ros" type="distance_conversion.py" output="screen" />
+    
+    <node pkg="rqt_graph" type="rqt_graph" name="rqt_graph" />
+</launch>
+

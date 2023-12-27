@@ -1,0 +1,19 @@
+<launch>
+    <!-- Define the path to the image as a launch argument -->
+    <arg name="image_path" default="lane.png" />
+
+    <!-- Start the image processing node with the specified argument -->
+    <node name="image_publisher" pkg="lane_processing" type="yellow_and_white_filter.py" output="screen">
+        <param name="image_path" value="$(arg image_path)" />
+    </node>
+
+    <!-- Start rqt_image_view for /image_cropped -->
+    <node pkg="rqt_image_view" type="rqt_image_view" name="image_view_cropped" args="/image_cropped"/>
+
+    <!-- Start rqt_image_view for /image_white -->
+    <node pkg="rqt_image_view" type="rqt_image_view" name="image_view_white" args="/image_white"/>
+
+    <!-- Start rqt_image_view for /image_yellow -->
+    <node pkg="rqt_image_view" type="rqt_image_view" name="image_view_yellow" args="/image_yellow"/>
+</launch>
+

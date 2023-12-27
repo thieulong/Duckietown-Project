@@ -1,0 +1,23 @@
+<launch>
+    <!-- Include the turtlesim_helper package launch file -->
+    <include file="$(find turtlesim_helper)/launch/turtlesim.launch" />
+    
+    <!-- Start the publisher node -->
+    <node name="publish_node" pkg="learning_ros" type="publish_node.py" output="screen" />
+
+    <!-- Start the subscriber node -->
+    <node name="node" pkg="learning_ros" type="coordinate_transform.py" output="screen" />
+    
+    <!-- Start rqt graph -->
+    <node pkg="rqt_graph" type="rqt_graph" name="rqt_graph" />
+    
+    <!-- Start rostopic echo for sensor_coord -->
+    <node pkg="rostopic" name="rostopic_sensor" type="rostopic" output="screen" args="echo /sensor_coord" />
+    
+    <!-- Start rostopic echo for robot_coord -->
+    <node pkg="rostopic" name="rostopic_robot" type="rostopic" output="screen" args="echo /robot_coord" />
+    
+    <!-- Start rostopic echo for world_coord -->
+    <node pkg="rostopic" name="rostopic_world" type="rostopic" output="screen" args="echo /world_coord" />
+</launch>
+

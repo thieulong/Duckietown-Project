@@ -1,0 +1,8 @@
+<launch>
+
+    <node pkg="example_service" name="fibonacci_service" type="example_service_node.py"/>
+    <node pkg="example_action_server" name="fibonacci_action_server" type="example_action_server_node.py"/>
+    <node pkg="learning_ros" name="fibonacci_server_example" type="fibonacci_server.py"/>
+    <node pkg="rqt_console" type="rqt_console" name="rqt_console"/>
+
+</launch>

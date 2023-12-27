@@ -1,0 +1,17 @@
+<launch>
+    <!-- Include the turtlesim_helper package launch file -->
+    <include file="$(find turtlesim_helper)/launch/turtlesim.launch" />
+    
+    <!-- Start the publisher node -->
+    <node name="publish_node" pkg="learning_ros" type="publish_node.py" output="screen" />
+    <node name="distance_travelled_node" pkg="learning_ros" type="turtle_distance_travelled.py" output="screen" />
+    <node name="set_conversion_params_node" pkg="learning_ros" type="set_conversion_params.py" output="screen" />
+    <node name="distance_conversion_node" pkg="learning_ros" type="distance_conversion.py" output="screen" />
+    
+    <!-- Start rqt graph -->
+    <node pkg="rqt_graph" type="rqt_graph" name="rqt_graph" />
+    
+    <!-- Start rostopic echo -->
+    <node pkg="rostopic" name="rostopic" type="rostopic" output="screen" args="echo /turtle1/converted_distance" />
+</launch>
+
