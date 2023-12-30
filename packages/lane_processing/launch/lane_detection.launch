@@ -1,0 +1,7 @@
+<launch>
+    <node name="image_publisher" pkg="image_processing_hw" type="image_pub_all.py" output="screen" />
+    <node name="lane_color_filter" pkg="lane_processing" type="lane_color_filter.py" output="screen" />
+    <node name="lane_detector" pkg="lane_processing" type="lane_detector.py" output="screen" />
+    <node pkg="rqt_image_view" type="rqt_image_view" name="image_view_cropped" args="/image_lines_all"/>
+</launch>
+

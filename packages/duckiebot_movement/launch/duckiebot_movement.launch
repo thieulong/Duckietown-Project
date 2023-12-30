@@ -1,6 +1,6 @@
 <launch>
     <group ns="$(env VEHICLE_NAME)">
-        <node name="move_duckiebot_custom" pkg="duckiebot_movement" type="duckiebot_movement.py" output="screen" />
+        <node name="duckiebot_move" pkg="duckiebot_movement" type="movement_square.py" output="screen" />
     </group>
 
     <include file="$(find anti_instagram)/launch/anti_instagram_node.launch">
