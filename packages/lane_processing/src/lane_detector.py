@@ -6,16 +6,16 @@ from cv_bridge import CvBridge
 import numpy as np
 import cv2
 
-class ImageSubscriber:
+class DetectLane:
     def __init__(self):
         rospy.init_node('lane_detection', anonymous=True)
 
         self.bridge = CvBridge()
 
+        rospy.Subscriber('/image_cropped', Image, self.cropped_image_callback)
         rospy.Subscriber('/image_white', Image, self.white_image_callback)
         rospy.Subscriber('/image_yellow', Image, self.yellow_image_callback)
-        rospy.Subscriber('/image_cropped', Image, self.cropped_image_callback)
-
+        
         self.pub_edges_white = rospy.Publisher('/image_lines_white', Image, queue_size=10)
         self.pub_edges_yellow = rospy.Publisher('/image_lines_yellow', Image, queue_size=10)
         self.pub_edges = rospy.Publisher('/image_edges', Image, queue_size=10)
@@ -113,7 +113,7 @@ class ImageSubscriber:
 
 if __name__ == '__main__':
     try:
-        image_subscriber = ImageSubscriber()
-        image_subscriber.run()
+        lane_detector = DetectLane()
+        lane_detector.run()
     except rospy.ROSInterruptException:
         pass
