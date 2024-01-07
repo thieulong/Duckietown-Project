@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="controls_hw" name="vehicle_dynamics" type="vehicle_dynamics.py"/>
+    <node pkg="controls_hw" name="controls_graph" type="controls_graph.py"/>
+    <node pkg="duckiebot_control" name="pid_control" type="pid_node.py" />
+</launch>
