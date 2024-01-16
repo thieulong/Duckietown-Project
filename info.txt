@@ -1,0 +1,17 @@
+---
+header: 
+  seq: 5047
+  stamp: 
+    secs: 1705384344
+    nsecs: 695854902
+  frame_id: ''
+d: 0.05999999865889549
+d_ref: 0.0
+phi: -0.05000000074505806
+phi_ref: 0.0
+d_phi_covariance: [0.0, 0.0, 0.0, 0.0]
+curvature: 0.0
+curvature_ref: 0.0
+v_ref: 0.0
+status: 0
+in_lane: True
