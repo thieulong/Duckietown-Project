@@ -6,53 +6,46 @@ from pid_controller import PIDController
 
 class LaneControllerNode:
     def __init__(self):
-        rospy.init_node('lane_controller')
+        rospy.init_node('lane_control_node')
 
-        # PID parameters for lateral control
-        kp_lateral = 1.0
-        ki_lateral = 0.01
-        kd_lateral = 0.1
+        kp_lateral = rospy.get_param("~kp_lateral", 1)
+        ki_lateral = rospy.get_param("~ki_lateral", 0)
+        kd_lateral = rospy.get_param("~kd_lateral", 0.01)
 
-        # PID parameters for angular control
-        kp_angular = 1.0
-        ki_angular = 0.01
-        kd_angular = 0.1
+        kp_angular = rospy.get_param("~kp_angular", 1)
+        ki_angular = rospy.get_param("~ki_angular", 0)
+        kd_angular = rospy.get_param("~kd_angular", 0.01)
 
-        # Initialize PID controllers
         self.pid_lateral = PIDController(kp_lateral, ki_lateral, kd_lateral)
         self.pid_angular = PIDController(kp_angular, ki_angular, kd_angular)
 
-        # Subscriber for lane pose
         rospy.Subscriber('/duckiebot/lane_filter_node/lane_pose', LanePose, self.lane_pose_callback)
 
-        # Publisher for control commands
-        self.control_pub = rospy.Publisher('/duckiebot/lane_controller_node/car_cmd', Twist2DStamped, queue_size=1)
+        self.control_pub = rospy.Publisher('/duckiebot/car_cmd_switch_node/cmd', Twist2DStamped, queue_size=1)
 
     def lane_pose_callback(self, lane_pose):
-        # Lateral control
-        lateral_error = lane_pose.d_ref - lane_pose.d
+        max_lateral_error = 0.2
+        lateral_error = max(min(lane_pose.d_ref - lane_pose.d, max_lateral_error), -max_lateral_error)
         dt_lateral = 0.1
         scaling_factor_lateral = 1
         control_signal_lateral = self.pid_lateral.calculate(lateral_error, dt_lateral)
         scaled_control_signal_lateral = control_signal_lateral * scaling_factor_lateral
-
-        # Angular control
-        angular_error = lane_pose.phi_ref - lane_pose.phi
+        #rospy.loginfo(f"Lateral: {scaled_control_signal_lateral}")
+	
+        max_angular_error = 3.0
+        angular_error = max(min(lane_pose.phi_ref - lane_pose.phi, max_angular_error), -max_angular_error)
         dt_angular = 0.1
         scaling_factor_angular = 1
         control_signal_angular = self.pid_angular.calculate(angular_error, dt_angular)
         scaled_control_signal_angular = control_signal_angular * scaling_factor_angular
+        #rospy.loginfo(f"Angular: {scaled_control_signal_angular}")
 
-        # Combine lateral and angular control signals
-        final_control_signal = scaled_control_signal_lateral + scaled_control_signal_angular
-
-        # Publish control commands
         car_cmd = Twist2DStamped()
-        car_cmd.omega = final_control_signal
+        car_cmd.v = scaled_control_signal_lateral 
+        car_cmd.omega = scaled_control_signal_angular 
         self.control_pub.publish(car_cmd)
 
-        # Print for debugging
-        rospy.loginfo(f"Lateral Error: {lateral_error}, Angular Error: {angular_error}")
+        #rospy.loginfo(f"Lateral Error: {lateral_error}, Angular Error: {angular_error}")
 
 if __name__ == '__main__':
     try:
@@ -60,3 +53,4 @@ if __name__ == '__main__':
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
+

@@ -8,8 +8,8 @@
     <!-- start Duckietown nodes -->
     <arg name="demo_name" value="lane_following"/>
 
-    <include file="$(find led_emitter)/launch/led_emitter_node.launch">
-        <arg name="veh" value="$(env VEHICLE_NAME)"/>
+    <include file="$(find led_emitter)/launch/led_emitter_node.launch"> 
+        <arg name="veh" value="$(env VEHICLE_NAME)"/> 
     </include>
     <!-- start basic args -->
     <include file="$(find duckietown_demos)/launch/master.launch">
@@ -34,13 +34,22 @@
         <arg name="line_detector_param_file_name" value="default" />
         <arg name="/lane_following/ground_projection" value="true"/>
         <arg name="/lane_following/lane_filter" value="true"/>
-        <arg name="/lane_following/lane_controller" value="true"/>
+        <arg name="/lane_following/lane_controller" value="false"/>
 
     </include>
 
     <group ns="$(env VEHICLE_NAME)">
         <node name="custom_lane_detector_node" pkg="lane_processing" type="custom_lane_detection.py" output="screen">
         </node>
+        <node name="duckiebot_pid_control" pkg="duckiebot_control" type="duckiebot_lane_angular_velocity.py" output="screen">
+            <param name="kp_lateral" value="1.5"/>
+            <param name="ki_lateral" value="0.01"/>
+            <param name="kd_lateral" value="0"/>
+            <param name="kp_angular" value="1.5"/>
+            <param name="ki_angular" value="0.01"/>
+            <param name="kd_angular" value="0"/>
+        </node>
     </group>
 
 </launch>
+
