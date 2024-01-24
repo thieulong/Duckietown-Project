@@ -12,7 +12,7 @@ class LaneControllerNode:
         ki_lateral = rospy.get_param("~ki_lateral", 0)
         kd_lateral = rospy.get_param("~kd_lateral", 0.01)
 
-        kp_angular = rospy.get_param("~kp_angular", 1)
+        kp_angular = rospy.get_param("~kp_angular", 2)
         ki_angular = rospy.get_param("~ki_angular", 0)
         kd_angular = rospy.get_param("~kd_angular", 0.01)
 
@@ -32,7 +32,7 @@ class LaneControllerNode:
         scaled_control_signal_lateral = control_signal_lateral * scaling_factor_lateral
         #rospy.loginfo(f"Lateral: {scaled_control_signal_lateral}")
 	
-        max_angular_error = 3.0
+        max_angular_error = 5.0
         angular_error = max(min(lane_pose.phi_ref - lane_pose.phi, max_angular_error), -max_angular_error)
         dt_angular = 0.1
         scaling_factor_angular = 1
@@ -41,7 +41,7 @@ class LaneControllerNode:
         #rospy.loginfo(f"Angular: {scaled_control_signal_angular}")
 
         car_cmd = Twist2DStamped()
-        car_cmd.v = scaled_control_signal_lateral 
+        car_cmd.v = 0.1
         car_cmd.omega = scaled_control_signal_angular 
         self.control_pub.publish(car_cmd)
 
