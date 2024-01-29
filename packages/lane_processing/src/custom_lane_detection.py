@@ -58,7 +58,8 @@ class CustomLaneDetection:
         white_edges = cv2.bitwise_and(white_filtered, dilated_edges)
         white_edges = cv2.cvtColor(white_edges, cv2.COLOR_BGR2GRAY)
         white_lines = cv2.HoughLinesP(white_edges, 1, np.pi / 180, threshold=10, minLineLength=10, maxLineGap=5)
-        white_lines_normalized = (white_lines + arr_cutoff) * arr_ratio
+        if white_lines is not None:
+            white_lines_normalized = (white_lines + arr_cutoff) * arr_ratio
 
         white_segment_list = SegmentList()
         for line in white_lines_normalized:
@@ -82,7 +83,8 @@ class CustomLaneDetection:
         yellow_edges = cv2.bitwise_and(yellow_filtered, dilated_edges)
         yellow_edges = cv2.cvtColor(yellow_edges, cv2.COLOR_BGR2GRAY)
         yellow_lines = cv2.HoughLinesP(yellow_edges, 1, np.pi / 180, threshold=10, minLineLength=5, maxLineGap=5)
-        yellow_lines_normalized = (yellow_lines + arr_cutoff) * arr_ratio
+        if yellow_lines is not None:
+            yellow_lines_normalized = (yellow_lines + arr_cutoff) * arr_ratio
 
         yellow_segment_list = SegmentList()
         for line in yellow_lines_normalized:
