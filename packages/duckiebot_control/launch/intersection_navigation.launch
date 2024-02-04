@@ -1,0 +1,41 @@
+<launch>
+    <!-- Set the default value for the enable_lane_controller parameter -->
+    <arg name="enable_lane_controller" default="true"/>
+
+    <!-- Start Duckietown nodes -->
+    <arg name="demo_name" value="lane_following"/>
+    <include file="$(find led_emitter)/launch/led_emitter_node.launch">
+        <arg name="veh" value="$(env VEHICLE_NAME)"/>
+    </include>
+
+    <!-- Start basic arguments -->
+    <include file="$(find duckietown_demos)/launch/master.launch">
+        <!-- Basic arguments -->
+        <arg name="veh" value="$(arg veh)"/>
+        <arg name="demo_name" value="$(arg demo_name)"/>
+        <arg name="param_file_name" value="default"/>
+        <arg name="visualization" value="true"/>
+
+        <!-- Finite state machine -->
+        <arg name="fsm" value="true"/>
+        <arg name="/fsm/logic_gate" value="false"/>
+
+        <!-- Camera and anti-instagram -->
+        <arg name="/camera/raw" value="false"/>
+        <arg name="anti_instagram" value="true"/>
+
+        <!-- Lane Following stack -->
+        <arg name="lane_following" value="true"/>
+        <arg name="/lane_following/line_detection" value="false"/>
+        <arg name="line_detector_param_file_name" value="default"/>
+        <arg name="/lane_following/ground_projection" value="true"/>
+        <arg name="/lane_following/lane_filter" value="true"/>
+        <!-- Use the enable_lane_controller parameter here -->
+        <arg name="/lane_following/lane_controller" value="$(arg enable_lane_controller)"/>
+    </include>
+
+    <!-- Your custom lane detector node -->
+    <group ns="$(env VEHICLE_NAME)">
+        <node name="custom_lane_detector_node" pkg="lane_processing" type="custom_lane_detection.py" output="screen"/>
+    </group>
+</launch>
