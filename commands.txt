@@ -1,0 +1,14 @@
+Build local: dts devel build --pull -f
+Run local(master): dts devel run -M -X --cmd bash -f
+Run local(attach): dts devel run attach
+
+Build online: dts devel build -H duckiebot.local --pull -f
+Run online(master): dts devel run -H duckiebot.local -s -M --cmd bash -f
+Run online(attach): dts devel run -H duckiebot.local attach
+
+Lane Following demo: dts duckiebot demo --demo_name lane_following --duckiebot_name duckiebot --package_name duckietown_demos
+
+Start GUI tools: dts start_gui_tools duckiebot
+
+Keyboard control: dts duckiebot keyboard_control duckiebot
+Keyboard control CLI: dts duckiebot keyboard_control duckiebot --cli

@@ -101,7 +101,6 @@ class CustomLaneDetection:
         ros_yellow_results = self.bridge.cv2_to_imgmsg(yellow_output, encoding='bgr8')
         self.pub_edges_yellow.publish(ros_yellow_results)
 
-        # New: Red line detection
         red_lower = np.array([0, 0, 200])
         red_upper = np.array([10, 255, 255])
         mask_red = cv2.inRange(hsv, red_lower, red_upper)
