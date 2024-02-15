@@ -34,8 +34,7 @@
         <arg name="line_detector_param_file_name" value="default"/>
         <arg name="/lane_following/ground_projection" value="true"/>
         <arg name="/lane_following/lane_filter" value="true"/>
-        <!-- Use the enable_lane_controller parameter here -->
-        <arg name="/lane_following/lane_controller/switch" value="$(arg enable_lane_controller)"/>
+        <arg name="/lane_following/lane_controller" value="$(arg enable_lane_controller)"/>
     </include>
 
     <!-- Your custom lane detector node -->

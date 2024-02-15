@@ -91,12 +91,12 @@ class IntersectionNavigation:
             self.enter_autonomous()
 
     def enable_lane_controller(self):
-        rospy.set_param('/lane_following/lane_controller/switch', "true")
-        rospy.loginfo("Lane controller enabled")
+        rospy.set_param('/lane_following/lane_controller', True)
+        rospy.loginfo("Lane following enabled")
 
     def disable_lane_controller(self):
-        rospy.set_param('/lane_following/lane_controller/switch', "false")
-        rospy.loginfo("Lane controller disabled")
+        rospy.set_param('/lane_following/lane_controller', False)
+        rospy.loginfo("Lane following disabled")
 
     def stop_duckiebot(self):
         rospy.loginfo(f"Duckiebot stopped")
@@ -151,6 +151,7 @@ class IntersectionNavigation:
 
     def enter_autonomous(self):
         rospy.loginfo("Duckiebot entered autonomous mode")
+        rospy.loginfo(f"Stop Duckiebot: {self.stop_vehicle}")
         if self.stop_vehicle == True:
             self.disable_lane_controller()
             self.stop_duckiebot()
