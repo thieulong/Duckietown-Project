@@ -41,6 +41,9 @@
     <group ns="$(env VEHICLE_NAME)">
         <node name="custom_lane_detector_node" pkg="lane_processing" type="detect_all_lanes.py" output="screen">
         </node>
+        <node  name="stop_line_filter_node" pkg="stop_line_filter" type="stop_line_filter_node.py" output="screen" required="true">
+            <rosparam command="load" file="$(find stop_line_filter)/config/stop_line_filter_node/default.yaml"/>
+        </node>
     </group>
 
 </launch>

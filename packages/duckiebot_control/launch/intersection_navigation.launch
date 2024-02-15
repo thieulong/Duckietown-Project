@@ -1,5 +1,9 @@
 <launch>
-    <!-- Set the default value for the enable_lane_controller parameter -->
+
+    <arg name="veh" default="$(env VEHICLE_NAME)"/>
+    <arg name="ai_trafo_mode" default="cb" doc="'cb' for colo balance only; 'both' for color balance and linear trafo"/>
+    <arg name="ai_interval" default="5" doc="interval with which the linear trafo gets updated. color balance is performed every second."/>
+    <arg name="verbose" default="false"/>
     <arg name="enable_lane_controller" default="true"/>
 
     <!-- Start Duckietown nodes -->
@@ -31,11 +35,11 @@
         <arg name="/lane_following/ground_projection" value="true"/>
         <arg name="/lane_following/lane_filter" value="true"/>
         <!-- Use the enable_lane_controller parameter here -->
-        <arg name="/lane_following/lane_controller" value="$(arg enable_lane_controller)"/>
+        <arg name="/lane_following/lane_controller/switch" value="$(arg enable_lane_controller)"/>
     </include>
 
     <!-- Your custom lane detector node -->
     <group ns="$(env VEHICLE_NAME)">
-        <node name="custom_lane_detector_node" pkg="lane_processing" type="custom_lane_detection.py" output="screen"/>
+        <node name="intersection_navigation_node" pkg="duckiebot_control" type="duckiebot_intersection_navigation.py" output="screen"/>
     </group>
 </launch>

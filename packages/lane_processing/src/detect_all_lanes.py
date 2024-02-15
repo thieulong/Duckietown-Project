@@ -59,15 +59,15 @@ class CustomLaneDetection:
         white_edges = cv2.bitwise_and(white_filtered, dilated_edges)
         white_edges = cv2.cvtColor(white_edges, cv2.COLOR_BGR2GRAY)
         white_lines = cv2.HoughLinesP(white_edges, 1, np.pi / 180, threshold=10, minLineLength=10, maxLineGap=5)
-        if white_lines is not None:
-            white_lines_normalized = (white_lines + arr_cutoff) * arr_ratio
+
+        white_lines_normalized = (white_lines + arr_cutoff) * arr_ratio
 
         white_segment_list = SegmentList()
         for line in white_lines_normalized:
             segment = Segment()
             segment.color = segment.WHITE
             segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
-                                         Vector2D(x=line[0][2], y=line[0][3])]
+                                            Vector2D(x=line[0][2], y=line[0][3])]
             white_segment_list.segments.append(segment)
         self.pub_segment_list.publish(white_segment_list)
 
@@ -84,15 +84,15 @@ class CustomLaneDetection:
         yellow_edges = cv2.bitwise_and(yellow_filtered, dilated_edges)
         yellow_edges = cv2.cvtColor(yellow_edges, cv2.COLOR_BGR2GRAY)
         yellow_lines = cv2.HoughLinesP(yellow_edges, 1, np.pi / 180, threshold=10, minLineLength=5, maxLineGap=5)
-        if yellow_lines is not None:
-            yellow_lines_normalized = (yellow_lines + arr_cutoff) * arr_ratio
+
+        yellow_lines_normalized = (yellow_lines + arr_cutoff) * arr_ratio
 
         yellow_segment_list = SegmentList()
         for line in yellow_lines_normalized:
             segment = Segment()
             segment.color = segment.YELLOW
             segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
-                                         Vector2D(x=line[0][2], y=line[0][3])]
+                                            Vector2D(x=line[0][2], y=line[0][3])]
             yellow_segment_list.segments.append(segment)
         self.pub_segment_list.publish(yellow_segment_list)
 
@@ -109,15 +109,15 @@ class CustomLaneDetection:
         red_edges = cv2.bitwise_and(red_filtered, dilated_edges)
         red_edges = cv2.cvtColor(red_edges, cv2.COLOR_BGR2GRAY)
         red_lines = cv2.HoughLinesP(red_edges, 1, np.pi / 180, threshold=10, minLineLength=10, maxLineGap=5)
-        if red_lines is not None:
-            red_lines_normalized = (red_lines + arr_cutoff) * arr_ratio
+
+        red_lines_normalized = (red_lines + arr_cutoff) * arr_ratio
 
         red_segment_list = SegmentList()
         for line in red_lines_normalized:
             segment = Segment()
             segment.color = segment.RED
             segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
-                                         Vector2D(x=line[0][2], y=line[0][3])]
+                                            Vector2D(x=line[0][2], y=line[0][3])]
             red_segment_list.segments.append(segment)
         self.pub_segment_list.publish(red_segment_list)
 
@@ -140,7 +140,7 @@ class CustomLaneDetection:
                 cv2.circle(output, (l[0], l[1]), 2, (0, 255, 0))
                 cv2.circle(output, (l[2], l[3]), 2, (0, 0, 255))
         return output
-    
+
     def output_lines_green(self, image, lines):
         output = np.copy(image)
         if lines is not None:
