@@ -4,7 +4,6 @@
     <arg name="ai_trafo_mode" default="cb" doc="'cb' for colo balance only; 'both' for color balance and linear trafo"/>
     <arg name="ai_interval" default="5" doc="interval with which the linear trafo gets updated. color balance is performed every second."/>
     <arg name="verbose" default="false"/>
-    <arg name="enable_lane_controller" default="true"/>
 
     <!-- Start Duckietown nodes -->
     <arg name="demo_name" value="lane_following"/>
@@ -30,15 +29,18 @@
 
         <!-- Lane Following stack -->
         <arg name="lane_following" value="true"/>
-        <arg name="/lane_following/line_detection" value="false"/>
+        <arg name="/lane_following/line_detection" value="true"/>
         <arg name="line_detector_param_file_name" value="default"/>
         <arg name="/lane_following/ground_projection" value="true"/>
         <arg name="/lane_following/lane_filter" value="true"/>
-        <arg name="/lane_following/lane_controller" value="$(arg enable_lane_controller)"/>
+        <arg name="/lane_following/lane_controller" value="true"/>
     </include>
 
     <!-- Your custom lane detector node -->
     <group ns="$(env VEHICLE_NAME)">
+        <!-- node name="all_lanes_detector_node" pkg="lane_processing" type="detect_all_lanes.py" output="screen"/-->
+        <node name="stop_line_node" pkg="duckiebot_control" type="stop_line.py" output="screen"/>
+            <rosparam command="load" file="$(find duckiebot_control)/config/default.yaml"/>
         <node name="intersection_navigation_node" pkg="duckiebot_control" type="duckiebot_intersection_navigation.py" output="screen"/>
     </group>
 </launch>
