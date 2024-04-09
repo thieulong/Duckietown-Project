@@ -1,0 +1,19 @@
+<launch>
+    <arg name="veh" default="duckiebot" doc="Name of vehicle"/>
+    <arg name="param_file_name" default="default" doc="Specify a param file." />
+
+    <arg name="pkg_name" value="lane_processing"/>
+    <arg name="node_name" default="stop_line"/>
+
+    <group ns="$(arg veh)">
+        <node  name="$(arg node_name)" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen" required="true">
+            <rosparam command="load" file="$(find lane_processing)/config/$(arg param_file_name).yaml"/>
+        </node>
+    </group>
+
+    <!-- Publications -->
+
+    <!-- Subscriptions -->
+
+
+</launch>

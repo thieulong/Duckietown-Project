@@ -8,9 +8,9 @@ class PIDNode:
     def __init__(self):
         rospy.init_node('pid_node')
 
-        kp = 0.21
-        ki = 0.01
-        kd = 7.2
+        kp = 0.85
+        ki = 0
+        kd = 0.5
 
         self.controller = PIDController(kp, ki, kd)
         rospy.set_param("controller_ready", "ready")
