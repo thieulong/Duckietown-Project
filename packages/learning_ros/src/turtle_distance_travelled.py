@@ -9,8 +9,8 @@ class DistanceReader:
     def __init__(self):
         self.distance = 0
         self.prev_pose = None
-        self.pub_distance = rospy.Publisher("turtle1/distance", UnitsLabelled, queue_size=10)
-        rospy.Subscriber("turtlesim/turtle1/pose", Pose, self.subscribe_function)
+        self.pub_distance = rospy.Publisher("/turtle1/distance", UnitsLabelled, queue_size=10)
+        rospy.Subscriber("/turtle1/pose", Pose, self.subscribe_function)
     
     def subscribe_function(self, data):
         if self.prev_pose is not None:
@@ -33,6 +33,6 @@ class DistanceReader:
         self.prev_pose = data
 
 if __name__ == '__main__':
-    rospy.init_node('distance_reader', anonymous=True)
+    rospy.init_node('distance_travelled_node', anonymous=False)
     distance_reader = DistanceReader()
     rospy.spin()

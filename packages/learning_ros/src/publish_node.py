@@ -26,7 +26,7 @@ def move_turtle_square():
 
         velocity_publisher.publish(turn_msg)
 
-        time.sleep(2)
+        time.sleep(2.5)
 
 if __name__ == '__main__':
 
