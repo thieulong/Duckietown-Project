@@ -22,6 +22,12 @@ class DuckiebotMovement:
         self.current_state = None
         self.tof_range = 0
 
+        self.forward_distance = 500
+        self.forward_speed = 0.2
+
+        self.turn_distance = 60
+        self.turn_speed = 0.5
+
     def fsm_callback(self, msg):
         if msg.state == "NORMAL_JOYSTICK_CONTROL":
             self.current_state = "MANUAL"
@@ -59,7 +65,7 @@ class DuckiebotMovement:
 
                 start_left_encoder = self.left_encoder_list[-1]
                 start_right_encoder = self.right_encoder_list[-1]
-                forward_target_ticks = 500
+                forward_target_ticks = self.forward_distance
 
                 self.cmd_msg = Twist2DStamped()
 
@@ -80,7 +86,7 @@ class DuckiebotMovement:
                         self.cmd_msg.omega = 0.0 
                     else:
                         self.cmd_msg.header.stamp = rospy.Time.now()
-                        self.cmd_msg.v = 0.3  
+                        self.cmd_msg.v = self.forward_speed 
                         self.cmd_msg.omega = 0.0 
                     
                     self.pub.publish(self.cmd_msg)
@@ -93,13 +99,13 @@ class DuckiebotMovement:
             start_left_encoder = self.left_encoder_list[-1]
             start_right_encoder = self.right_encoder_list[-1]
 
-            right_target_ticks = 55
+            right_target_ticks = self.turn_distance
             # left_target_ticks = 0
 
             self.cmd_msg = Twist2DStamped()
             self.cmd_msg.header.stamp = rospy.Time.now()
             self.cmd_msg.v = 0.0
-            self.cmd_msg.omega = 5.0
+            self.cmd_msg.omega = self.turn_speed
 
             while not rospy.is_shutdown():
                 # current_left_encoder = self.left_encoder_list[-1]
@@ -119,6 +125,7 @@ class DuckiebotMovement:
         self.right_encoder_list.clear()
 
         self.stop_robot()
+        rospy.signal_shutdown("Completed movement task.")  
 
     def run(self):
         rospy.spin()

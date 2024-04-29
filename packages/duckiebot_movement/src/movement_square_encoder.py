@@ -20,9 +20,9 @@ class DuckiebotMovement:
         self.current_state = None
 
         self.forward_distance = 500
-        self.forward_speed = 0.3
+        self.forward_speed = 0.2
 
-        self.turn_distance = 55
+        self.turn_distance = 60
         self.turn_speed = 5.0
 
     def fsm_callback(self, msg):
