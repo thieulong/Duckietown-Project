@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from duckietown_msgs.msg import Twist2DStamped
-from duckietown_msgs.msg import FSMState
+from duckietown_msgs.msg import Twist2DStamped, FSMState
 
 class DuckiebotMovement:
     def __init__(self):
