@@ -28,6 +28,8 @@ class DuckiebotMovement:
         self.turn_distance = 60
         self.turn_speed = 0.5
 
+        self.stopping_distance = 0.1
+
     def fsm_callback(self, msg):
         if msg.state == "NORMAL_JOYSTICK_CONTROL":
             self.current_state = "MANUAL"
@@ -78,7 +80,7 @@ class DuckiebotMovement:
                         rospy.loginfo("Forward target encoder ticks reached. Stopping robot.")
                         break
 
-                    if self.tof_range < 0.1:
+                    if self.tof_range < self.stopping_distance:
                         rospy.loginfo("Obstacle ahead, stopping Duckiebot")
                         rospy.loginfo(f"Distance ahead: {self.tof_range}")
                         self.cmd_msg.header.stamp = rospy.Time.now()
