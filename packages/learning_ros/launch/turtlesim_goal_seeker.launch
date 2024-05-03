@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find turtlesim_helper)/launch/turtlesim.launch" />
+    
+    <node name="goal_seeker_node" pkg="learning_ros" type="goal_seeker.py" output="screen" />
+</launch>
