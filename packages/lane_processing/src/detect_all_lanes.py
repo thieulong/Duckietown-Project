@@ -59,22 +59,21 @@ class CustomLaneDetection:
         white_edges = cv2.bitwise_and(white_filtered, dilated_edges)
         white_edges = cv2.cvtColor(white_edges, cv2.COLOR_BGR2GRAY)
         white_lines = cv2.HoughLinesP(white_edges, 1, np.pi / 180, threshold=10, minLineLength=10, maxLineGap=5)
+        if not isinstance(white_lines, type(None)): 
+            white_lines_normalized = (white_lines + arr_cutoff) * arr_ratio
+            white_segment_list = SegmentList()
+            for line in white_lines_normalized:
+                segment = Segment()
+                segment.color = segment.WHITE
+                segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
+                                                Vector2D(x=line[0][2], y=line[0][3])]
+                white_segment_list.segments.append(segment)
+            self.pub_segment_list.publish(white_segment_list)
 
-        white_lines_normalized = (white_lines + arr_cutoff) * arr_ratio
+            white_output = self.output_lines_green(image_cropped, white_lines)
 
-        white_segment_list = SegmentList()
-        for line in white_lines_normalized:
-            segment = Segment()
-            segment.color = segment.WHITE
-            segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
-                                            Vector2D(x=line[0][2], y=line[0][3])]
-            white_segment_list.segments.append(segment)
-        self.pub_segment_list.publish(white_segment_list)
-
-        white_output = self.output_lines_green(image_cropped, white_lines)
-
-        ros_white_results = self.bridge.cv2_to_imgmsg(white_output, encoding='bgr8')
-        self.pub_edges_white.publish(ros_white_results)
+            ros_white_results = self.bridge.cv2_to_imgmsg(white_output, encoding='bgr8')
+            self.pub_edges_white.publish(ros_white_results)
 
         yellow_lower = np.array([20, 0, 150])
         yellow_upper = np.array([40, 255, 255])
@@ -84,22 +83,21 @@ class CustomLaneDetection:
         yellow_edges = cv2.bitwise_and(yellow_filtered, dilated_edges)
         yellow_edges = cv2.cvtColor(yellow_edges, cv2.COLOR_BGR2GRAY)
         yellow_lines = cv2.HoughLinesP(yellow_edges, 1, np.pi / 180, threshold=10, minLineLength=5, maxLineGap=5)
+        if not isinstance(yellow_lines, type(None)):
+            yellow_lines_normalized = (yellow_lines + arr_cutoff) * arr_ratio
+            yellow_segment_list = SegmentList()
+            for line in yellow_lines_normalized:
+                segment = Segment()
+                segment.color = segment.YELLOW
+                segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
+                                                Vector2D(x=line[0][2], y=line[0][3])]
+                yellow_segment_list.segments.append(segment)
+            self.pub_segment_list.publish(yellow_segment_list)
 
-        yellow_lines_normalized = (yellow_lines + arr_cutoff) * arr_ratio
+            yellow_output = self.output_lines_blue(image_cropped, yellow_lines)
 
-        yellow_segment_list = SegmentList()
-        for line in yellow_lines_normalized:
-            segment = Segment()
-            segment.color = segment.YELLOW
-            segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
-                                            Vector2D(x=line[0][2], y=line[0][3])]
-            yellow_segment_list.segments.append(segment)
-        self.pub_segment_list.publish(yellow_segment_list)
-
-        yellow_output = self.output_lines_blue(image_cropped, yellow_lines)
-
-        ros_yellow_results = self.bridge.cv2_to_imgmsg(yellow_output, encoding='bgr8')
-        self.pub_edges_yellow.publish(ros_yellow_results)
+            ros_yellow_results = self.bridge.cv2_to_imgmsg(yellow_output, encoding='bgr8')
+            self.pub_edges_yellow.publish(ros_yellow_results)
 
         red_lower = np.array([0, 0, 200])
         red_upper = np.array([10, 255, 255])
@@ -109,27 +107,31 @@ class CustomLaneDetection:
         red_edges = cv2.bitwise_and(red_filtered, dilated_edges)
         red_edges = cv2.cvtColor(red_edges, cv2.COLOR_BGR2GRAY)
         red_lines = cv2.HoughLinesP(red_edges, 1, np.pi / 180, threshold=10, minLineLength=10, maxLineGap=5)
+        if not isinstance(red_lines, type(None)):
+            red_lines_normalized = (red_lines + arr_cutoff) * arr_ratio
+            red_segment_list = SegmentList()
+            for line in red_lines_normalized:
+                segment = Segment()
+                segment.color = segment.RED
+                segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
+                                                Vector2D(x=line[0][2], y=line[0][3])]
+                red_segment_list.segments.append(segment)
+            self.pub_segment_list.publish(red_segment_list)
 
-        red_lines_normalized = (red_lines + arr_cutoff) * arr_ratio
+            red_output = self.output_lines_red(image_cropped, red_lines)
 
-        red_segment_list = SegmentList()
-        for line in red_lines_normalized:
-            segment = Segment()
-            segment.color = segment.RED
-            segment.pixels_normalized = [Vector2D(x=line[0][0], y=line[0][1]),
-                                            Vector2D(x=line[0][2], y=line[0][3])]
-            red_segment_list.segments.append(segment)
-        self.pub_segment_list.publish(red_segment_list)
+            ros_red_results = self.bridge.cv2_to_imgmsg(red_output, encoding='bgr8')
+            self.pub_edges_red.publish(ros_red_results)
 
-        red_output = self.output_lines_red(image_cropped, red_lines)
+        if not isinstance(white_lines, type(None)) and not isinstance(yellow_lines, type(None)):
+            combined_lines = cv2.addWeighted(white_output, 1, yellow_output, 1, 0)
+        
+        if not isinstance(red_lines, type(None)):
+            combined_lines = cv2.addWeighted(combined_lines, 1, red_output, 1, 0)
 
-        ros_red_results = self.bridge.cv2_to_imgmsg(red_output, encoding='bgr8')
-        self.pub_edges_red.publish(ros_red_results)
-
-        combined_lines = cv2.addWeighted(white_output, 1, yellow_output, 1, 0)
-        combined_lines = cv2.addWeighted(combined_lines, 1, red_output, 1, 0)
-        ros_combined_results = self.bridge.cv2_to_imgmsg(combined_lines, encoding='bgr8')
-        self.pub_combined_results.publish(ros_combined_results)
+        if not isinstance(combined_lines, type(None)):
+            ros_combined_results = self.bridge.cv2_to_imgmsg(combined_lines, encoding='bgr8')
+            self.pub_combined_results.publish(ros_combined_results)
 
     def output_lines_blue(self, image, lines):
         output = np.copy(image)
