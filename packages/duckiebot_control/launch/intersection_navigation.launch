@@ -41,10 +41,8 @@
         <!-- node name="all_lanes_detector_node" pkg="lane_processing" type="detect_all_lanes.py" output="screen"/-->
         <node name="stop_line_node" pkg="duckiebot_control" type="stop_line.py" output="screen"/>
             <rosparam command="load" file="$(find duckiebot_control)/config/default.yaml"/>
-<<<<<<< HEAD
-        <node name="intersection_navigation_node" pkg="duckiebot_control" type="intersection_navigation.py" output="screen"/>
-=======
+
         <node name="intersection_navigation_node" pkg="duckiebot_control" type="duckiebot_intersection_navigation.py" output="screen"/>
->>>>>>> e66672de2687123b8ec04c862dd312a8a9b1e238
+
     </group>
 </launch>
