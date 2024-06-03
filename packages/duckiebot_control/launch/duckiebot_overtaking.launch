@@ -32,8 +32,8 @@
 
     <group ns="$(env VEHICLE_NAME)">
 
-        <node name="overtake_command" pkg="duckiebot_control" type="duckiebot_overtaking.py" output="screen"/>
-        <node name="overtake_action" pkg="duckiebot_control" type="handle_movement.py" output="screen"/>
+        <node name="overtake_command" pkg="duckiebot_control" type="duckiebot_overtake_command.py" output="screen"/>
+        <node name="overtake_action" pkg="duckiebot_control" type="duckiebot_overtake_action.py" output="screen"/>
 
     </group>
 </launch>
