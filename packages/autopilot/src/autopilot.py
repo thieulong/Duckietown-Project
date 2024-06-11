@@ -2,6 +2,7 @@
 
 import rospy
 import random
+from sensor_msgs.msg import Range
 from duckietown_msgs.msg import Twist2DStamped
 from duckietown_msgs.msg import FSMState
 from duckietown_msgs.msg import AprilTagDetectionArray
@@ -20,6 +21,7 @@ class Autopilot:
         rospy.Subscriber('/duckiebot/apriltag_detector_node/detections', AprilTagDetectionArray, self.tag_callback, queue_size=1)
         rospy.Subscriber('/duckiebot/left_wheel_encoder_node/tick', WheelEncoderStamped, self.left_encoder_callback)
         rospy.Subscriber('/duckiebot/right_wheel_encoder_node/tick', WheelEncoderStamped, self.right_encoder_callback)
+        rospy.Subscriber('/duckiebot/front_center_tof_driver_node/range', Range, self.tof_callback)
 
         self.robot_state = "LANE_FOLLOWING"
 
@@ -44,13 +46,27 @@ class Autopilot:
 
         self.is_turning = False
 
+        self.distance = 0.0
+        self.distance_threshold = 0.2
+        self.obstacle_detect_time = None
+        self.obstacle_wait_duration = 5
+        self.overtake_started = False
+        self.is_overtaking = False
+
         rospy.spin() 
 
     def tag_callback(self, msg):
-        if self.robot_state != "LANE_FOLLOWING":
-            return
+        #if self.robot_state != "LANE_FOLLOWING":
+        #    return
+
+        #if self.robot_state == "OBSTACLE_WAITING":
+        #    self.move_robot(msg.detections)
         
         self.move_robot(msg.detections)
+
+    def tof_callback(self, msg):
+        if not self.is_overtaking:  
+            self.distance = float(msg.range)
 
     def left_encoder_callback(self, msg):
         self.left_current_encoder = msg.data
@@ -98,7 +114,6 @@ class Autopilot:
                 rate.sleep()
             
             self.stop_robot()
-            self.encoder_list = list()
             
         elif direction == "right":
             rospy.loginfo(f"Duckiebot turning right")
@@ -113,7 +128,6 @@ class Autopilot:
                 rate.sleep()
             
             self.stop_robot()
-            self.encoder_list = list()
 
         elif direction == "left":
             rospy.loginfo(f"Duckiebot turning left")
@@ -126,10 +140,72 @@ class Autopilot:
                 self.cmd_msg.omega = 1.5
                 self.cmd_vel_pub.publish(self.cmd_msg)
                 rate.sleep()
+
+            self.stop_robot()
+
+        elif direction == "overtaking":
+            rospy.loginfo("Duckiebot overtaking")
+            rospy.loginfo("Turning left")
+            self.max_encodings = 30
+            self.target_encoder = self.left_encoder_list[-1]
+            while self.left_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.0
+                self.cmd_msg.omega = 1.5
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
+
+            rospy.loginfo("Move forward")
+            self.max_encodings = 80
+            self.target_encoder = self.right_encoder_list[-1]
+            while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.2
+                self.cmd_msg.omega = 0.0
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
+
+            rospy.loginfo("Turn right")
+            self.max_encodings = 8
+            self.target_encoder = self.right_encoder_list[-1]
+            while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.0
+                self.cmd_msg.omega = -1.5
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
+
+            rospy.loginfo("Move forward")
+            self.max_encodings = 150
+            self.target_encoder = self.left_encoder_list[-1]
+            while self.left_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.2
+                self.cmd_msg.omega = 0.0
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
+
+            rospy.loginfo("Turn right")
+            self.max_encodings = 10
+            self.target_encoder = self.right_encoder_list[-1]
+            while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.0
+                self.cmd_msg.omega = -1.5
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
             
             self.stop_robot()
-            self.encoder_list = list()
+            self.left_encoder_list = list()
+            self.right_encoder_list = list()
+
         self.is_turning = False
+        self.is_overtaking = False
 
     def intersection_randomize(self):
         rospy.loginfo(f"Duckiebot is at Intersection. Choosing direction randomly")
@@ -160,9 +236,32 @@ class Autopilot:
         return chosen_direction
 
     def move_robot(self, detections):
-
+        rate = rospy.Rate(10)
         if len(detections) == 0:
-            return
+            rospy.loginfo(f"Front distance: {self.distance}")
+            if self.distance < self.distance_threshold:
+                rospy.loginfo("Detect obstacle!")
+                if self.obstacle_detect_time is None:
+                    self.set_state("NORMAL_JOYSTICK_CONTROL")
+                    self.stop_robot()  
+                    rospy.loginfo("Start obstacle timer")
+                    self.obstacle_detect_time = rospy.Time.now()
+                self.robot_state = "OBSTACLE_WAITING"
+            if self.robot_state == "OBSTACLE_WAITING":
+                rospy.loginfo(f"Obstacle timer: {(rospy.Time.now() - self.obstacle_detect_time).to_sec()}")
+                if self.distance >= self.distance_threshold:
+                    rospy.loginfo("Obstacle removed")
+                    self.set_state("LANE_FOLLOWING")
+                    self.obstacle_detect_time = None
+                    self.robot_state = "LANE_FOLLOWING"
+                elif self.obstacle_detect_time and (rospy.Time.now() - self.obstacle_detect_time).to_sec() > self.obstacle_wait_duration:
+                    rospy.loginfo("Wait timer exceeded! Proceed to overtaking.")
+                    if not self.overtake_started:
+                        self.overtake_started = True
+                        self.handle_movement(direction="overtaking")
+                        self.obstacle_detect_time = None
+                        self.overtake_started = False
+                        self.set_state("LANE_FOLLOWING")
 
         if len(detections) > 0:
             direction = None
@@ -214,3 +313,4 @@ if __name__ == '__main__':
         autopilot_instance = Autopilot()
     except rospy.ROSInterruptException:
         pass
+
