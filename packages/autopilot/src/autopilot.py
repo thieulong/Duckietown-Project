@@ -146,42 +146,20 @@ class Autopilot:
         elif direction == "overtaking":
             rospy.loginfo("Duckiebot overtaking")
             rospy.loginfo("Turning left")
-            self.max_encodings = 30
+            self.max_encodings = 60
             self.target_encoder = self.left_encoder_list[-1]
             while self.left_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
                 self.cmd_msg = Twist2DStamped()
                 self.cmd_msg.header.stamp = rospy.Time.now()
                 self.cmd_msg.v = 0.0
-                self.cmd_msg.omega = 1.5
-                self.cmd_vel_pub.publish(self.cmd_msg)
-                rate.sleep()
-
-            rospy.loginfo("Move forward")
-            self.max_encodings = 80
-            self.target_encoder = self.right_encoder_list[-1]
-            while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
-                self.cmd_msg = Twist2DStamped()
-                self.cmd_msg.header.stamp = rospy.Time.now()
-                self.cmd_msg.v = 0.2
-                self.cmd_msg.omega = 0.0
-                self.cmd_vel_pub.publish(self.cmd_msg)
-                rate.sleep()
-
-            rospy.loginfo("Turn right")
-            self.max_encodings = 8
-            self.target_encoder = self.right_encoder_list[-1]
-            while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
-                self.cmd_msg = Twist2DStamped()
-                self.cmd_msg.header.stamp = rospy.Time.now()
-                self.cmd_msg.v = 0.0
-                self.cmd_msg.omega = -1.5
+                self.cmd_msg.omega = 2
                 self.cmd_vel_pub.publish(self.cmd_msg)
                 rate.sleep()
 
             rospy.loginfo("Move forward")
             self.max_encodings = 150
-            self.target_encoder = self.left_encoder_list[-1]
-            while self.left_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+            self.target_encoder = self.right_encoder_list[-1]
+            while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
                 self.cmd_msg = Twist2DStamped()
                 self.cmd_msg.header.stamp = rospy.Time.now()
                 self.cmd_msg.v = 0.2
@@ -190,19 +168,26 @@ class Autopilot:
                 rate.sleep()
 
             rospy.loginfo("Turn right")
-            self.max_encodings = 10
+            self.max_encodings = 30
             self.target_encoder = self.right_encoder_list[-1]
             while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
                 self.cmd_msg = Twist2DStamped()
                 self.cmd_msg.header.stamp = rospy.Time.now()
                 self.cmd_msg.v = 0.0
-                self.cmd_msg.omega = -1.5
+                self.cmd_msg.omega = -2
                 self.cmd_vel_pub.publish(self.cmd_msg)
                 rate.sleep()
-            
-            self.stop_robot()
-            self.left_encoder_list = list()
-            self.right_encoder_list = list()
+
+            rospy.loginfo("Move forward")
+            self.max_encodings = 250
+            self.target_encoder = self.left_encoder_list[-1]
+            while self.left_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.2
+                self.cmd_msg.omega = 0.0
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
 
         self.is_turning = False
         self.is_overtaking = False
@@ -313,4 +298,3 @@ if __name__ == '__main__':
         autopilot_instance = Autopilot()
     except rospy.ROSInterruptException:
         pass
-

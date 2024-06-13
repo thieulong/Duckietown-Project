@@ -87,39 +87,46 @@ class Autopilot:
         self.is_turning = True
         if direction == "forward":
             rospy.loginfo(f"Duckiebot moving forward")
-            self.cmd_msg = Twist2DStamped()
-            self.cmd_msg.header.stamp = rospy.Time.now()
-            self.cmd_msg.v = 0.25
-            self.cmd_msg.omega = 0.0
-            self.cmd_vel_pub.publish(self.cmd_msg)
-            rospy.sleep(3)
+            self.max_encodings = 500
+            self.target_encoder = self.left_encoder_list[-1]
+            while self.left_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.2
+                self.cmd_msg.omega = 0.0
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
             
             self.stop_robot()
-            self.encoder_list = list()
             
         elif direction == "right":
             rospy.loginfo(f"Duckiebot turning right")
-            self.cmd_msg = Twist2DStamped()
-            self.cmd_msg.header.stamp = rospy.Time.now()
-            self.cmd_msg.v = 0.25
-            self.cmd_msg.omega = -2.0
-            self.cmd_vel_pub.publish(self.cmd_msg)
-            rospy.sleep(2)
+            self.max_encodings = 200
+            self.target_encoder = self.right_encoder_list[-1]
+            while self.right_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.2
+                self.cmd_msg.omega = -2.5
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
             
             self.stop_robot()
-            self.encoder_list = list()
 
         elif direction == "left":
             rospy.loginfo(f"Duckiebot turning left")
-            self.cmd_msg = Twist2DStamped()
-            self.cmd_msg.header.stamp = rospy.Time.now()
-            self.cmd_msg.v = 0.25
-            self.cmd_msg.omega = 2.0
-            self.cmd_vel_pub.publish(self.cmd_msg)
-            rospy.sleep(3)
+            self.max_encodings = 450
+            self.target_encoder = self.left_encoder_list[-1]
+            while self.left_current_encoder in range(self.target_encoder-self.max_encodings, self.target_encoder+self.max_encodings):
+                self.cmd_msg = Twist2DStamped()
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.v = 0.2
+                self.cmd_msg.omega = 1.5
+                self.cmd_vel_pub.publish(self.cmd_msg)
+                rate.sleep()
             
             self.stop_robot()
-            self.encoder_list = list()
+
         self.is_turning = False
 
     def intersection_randomize(self):
@@ -175,7 +182,7 @@ class Autopilot:
 
                 self.cmd_msg = Twist2DStamped()
                 self.cmd_msg.header.stamp = rospy.Time.now()
-                self.cmd_msg.v = 0.1
+                self.cmd_msg.v = 0.05
                 self.cmd_msg.omega = 0.0
                 self.cmd_vel_pub.publish(self.cmd_msg)
                 rospy.sleep(1.5)
