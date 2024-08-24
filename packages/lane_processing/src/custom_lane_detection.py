@@ -8,6 +8,7 @@ from duckietown_msgs.msg import Segment, SegmentList, Vector2D
 from geometry_msgs.msg import Point
 from std_srvs.srv import SetBool, SetBoolResponse
 from cv_bridge import CvBridge
+from copy import deepcopy
 
 class CustomLaneDetection:
     def __init__(self):
@@ -24,10 +25,13 @@ class CustomLaneDetection:
         self.pub_edges_yellow = rospy.Publisher('/image_lines_yellow', Image, queue_size=10)
         self.pub_edges = rospy.Publisher('/image_edges', Image, queue_size=10)
         self.pub_combined_results = rospy.Publisher('/image_lines_all', Image, queue_size=10)
+        self.pub_original_combined_results = rospy.Publisher('/original_image_lines_all', Image, queue_size=10)
         self.pub_segment_list = rospy.Publisher('/duckiebot/line_detector_node/segment_list', SegmentList, queue_size=10)
 
     def lane_processing_callback(self, msg):
         image = self.bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        original_image = deepcopy(image)
+
         image_size = (160, 120)
         offset = 40
         new_image = cv2.resize(image, image_size, interpolation=cv2.INTER_NEAREST)
@@ -104,6 +108,26 @@ class CustomLaneDetection:
         ros_combined_results = self.bridge.cv2_to_imgmsg(combined_lines, encoding='bgr8')
         self.pub_combined_results.publish(ros_combined_results)
 
+        def revert_coordinates(line):
+            x1, y1, x2, y2 = line
+            x1_orig = int(x1 * (original_image.shape[1] / image_size[0]))
+            y1_orig = int((y1 + offset) * (original_image.shape[0] / image_size[1]))
+            x2_orig = int(x2 * (original_image.shape[1] / image_size[0]))
+            y2_orig = int((y2 + offset) * (original_image.shape[0] / image_size[1]))
+            return x1_orig, y1_orig, x2_orig, y2_orig
+
+        def draw_lines_on_original(lines, color):
+            if lines is not None:
+                for line in lines:
+                    x1, y1, x2, y2 = revert_coordinates(line[0])
+                    cv2.line(original_image, (x1, y1), (x2, y2), color, 4, cv2.LINE_AA) 
+
+        draw_lines_on_original(white_lines, (0, 255, 0))  
+        draw_lines_on_original(yellow_lines, (255, 0, 0))  
+
+        ros_original_combined_results = self.bridge.cv2_to_imgmsg(original_image, encoding='bgr8')
+        self.pub_original_combined_results.publish(ros_original_combined_results)
+
     def output_lines_blue(self, image, lines):
         output = np.copy(image)
         if lines is not None:
@@ -139,4 +163,3 @@ if __name__ == '__main__':
         lane_detect.run()
     except rospy.ROSInterruptException:
         pass
-
