@@ -12,3 +12,6 @@ Start GUI tools: dts start_gui_tools duckiebot
 
 Keyboard control: dts duckiebot keyboard_control duckiebot
 Keyboard control CLI: dts duckiebot keyboard_control duckiebot --cli
+
+duckiebot1: dckr_pat_Jvv3mG3FRgA_xJlcFbzGOs6iQSE
+duckiebot2: dckr_pat_agJ_QgQ9Ql1BSFnOMyZxRiFN6Gs

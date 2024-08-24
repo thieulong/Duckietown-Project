@@ -222,31 +222,75 @@ class Autopilot:
 
     def move_robot(self, detections):
         rate = rospy.Rate(10)
-        if len(detections) == 0:
-            rospy.loginfo(f"Front distance: {self.distance}")
-            if self.distance < self.distance_threshold:
-                rospy.loginfo("Detect obstacle!")
-                if self.obstacle_detect_time is None:
-                    self.set_state("NORMAL_JOYSTICK_CONTROL")
-                    self.stop_robot()  
-                    rospy.loginfo("Start obstacle timer")
-                    self.obstacle_detect_time = rospy.Time.now()
-                self.robot_state = "OBSTACLE_WAITING"
-            if self.robot_state == "OBSTACLE_WAITING":
-                rospy.loginfo(f"Obstacle timer: {(rospy.Time.now() - self.obstacle_detect_time).to_sec()}")
-                if self.distance >= self.distance_threshold:
-                    rospy.loginfo("Obstacle removed")
-                    self.set_state("LANE_FOLLOWING")
-                    self.obstacle_detect_time = None
-                    self.robot_state = "LANE_FOLLOWING"
-                elif self.obstacle_detect_time and (rospy.Time.now() - self.obstacle_detect_time).to_sec() > self.obstacle_wait_duration:
-                    rospy.loginfo("Wait timer exceeded! Proceed to overtaking.")
-                    if not self.overtake_started:
-                        self.overtake_started = True
-                        self.handle_movement(direction="overtaking")
-                        self.obstacle_detect_time = None
-                        self.overtake_started = False
-                        self.set_state("LANE_FOLLOWING")
+        # if len(detections) == 0:
+        #     rospy.loginfo(f"Front distance: {self.distance}")
+        #     if self.distance < self.distance_threshold:
+        #         rospy.loginfo("Detect obstacle!")
+        #         if self.obstacle_detect_time is None:
+        #             self.set_state("NORMAL_JOYSTICK_CONTROL")
+        #             self.stop_robot()  
+        #             rospy.loginfo("Start obstacle timer")
+        #             self.obstacle_detect_time = rospy.Time.now()
+        #         self.robot_state = "OBSTACLE_WAITING"
+        #     if self.robot_state == "OBSTACLE_WAITING":
+        #         rospy.loginfo(f"Obstacle timer: {(rospy.Time.now() - self.obstacle_detect_time).to_sec()}")
+        #         if self.distance >= self.distance_threshold:
+        #             rospy.loginfo("Obstacle removed")
+        #             self.set_state("LANE_FOLLOWING")
+        #             self.obstacle_detect_time = None
+        #             self.robot_state = "LANE_FOLLOWING"
+        #         elif self.obstacle_detect_time and (rospy.Time.now() - self.obstacle_detect_time).to_sec() > self.obstacle_wait_duration:
+        #             rospy.loginfo("Wait timer exceeded! Proceed to overtaking.")
+        #             if not self.overtake_started:
+        #                 self.overtake_started = True
+        #                 self.handle_movement(direction="overtaking")
+        #                 self.obstacle_detect_time = None
+        #                 self.overtake_started = False
+        #                 self.set_state("LANE_FOLLOWING")
+
+        # if len(detections) > 0:
+        #     direction = None
+        #     self.detect_tag = True
+        #     tag = detections[0]
+        #     self.tag_id = tag.tag_id
+        #     self.tag_distance = tag.transform.translation.z
+        #     if self.tag_id in self.tag_id_info:
+        #         self.tag_info = self.tag_id_info[self.tag_id]
+        #     else: 
+        #         rospy.loginfo("Trouble recognizing this sign")
+
+        #     rospy.loginfo(f"Tag ID: {self.tag_id}")
+        #     rospy.loginfo(f"Tag Distance: {self.tag_distance}")
+        #     rospy.loginfo(f"Tag Info: {self.tag_info}")
+
+        #     if self.tag_distance <= self.tag_threshold_distance:
+        #         self.set_state("NORMAL_JOYSTICK_CONTROL")
+
+        #         self.cmd_msg = Twist2DStamped()
+        #         self.cmd_msg.header.stamp = rospy.Time.now()
+        #         self.cmd_msg.v = 0.05
+        #         self.cmd_msg.omega = 0.0
+        #         self.cmd_vel_pub.publish(self.cmd_msg)
+        #         rospy.sleep(1.5)
+
+        #         self.stop_robot()
+        #         rospy.sleep(3)
+
+        #         if self.tag_info == "Stop":
+        #             direction = self.intersection_randomize()
+        #         elif self.tag_info == "T-Intersection":
+        #             direction = self.t_intersection_randomize()
+        #         elif self.tag_info == "Side Road Left":
+        #             direction = self.sideroad_left_randomize()
+        #         elif self.tag_info == "Side Road Right":
+        #             direction = self.sideroad_right_randomize()
+        #         else:
+        #             direction = "forward"
+        #             rospy.logwarn("Unable to read last sign, moving forward")
+        #         rospy.loginfo(f"Duckiebot direction: {direction}")
+
+        #     self.handle_movement(direction=direction) 
+        #     self.set_state("LANE_FOLLOWING")
 
         if len(detections) > 0:
             direction = None
@@ -254,10 +298,7 @@ class Autopilot:
             tag = detections[0]
             self.tag_id = tag.tag_id
             self.tag_distance = tag.transform.translation.z
-            if self.tag_id in self.tag_id_info:
-                self.tag_info = self.tag_id_info[self.tag_id]
-            else: 
-                rospy.loginfo("Trouble recognizing this sign")
+
 
             rospy.loginfo(f"Tag ID: {self.tag_id}")
             rospy.loginfo(f"Tag Distance: {self.tag_distance}")
@@ -271,25 +312,12 @@ class Autopilot:
                 self.cmd_msg.v = 0.05
                 self.cmd_msg.omega = 0.0
                 self.cmd_vel_pub.publish(self.cmd_msg)
-                rospy.sleep(1.5)
+                rospy.sleep(1)
 
                 self.stop_robot()
                 rospy.sleep(3)
 
-                if self.tag_info == "Stop":
-                    direction = self.intersection_randomize()
-                elif self.tag_info == "T-Intersection":
-                    direction = self.t_intersection_randomize()
-                elif self.tag_info == "Side Road Left":
-                    direction = self.sideroad_left_randomize()
-                elif self.tag_info == "Side Road Right":
-                    direction = self.sideroad_right_randomize()
-                else:
-                    direction = "forward"
-                    rospy.logwarn("Unable to read last sign, moving forward")
-                rospy.loginfo(f"Duckiebot direction: {direction}")
-
-            self.handle_movement(direction=direction) 
+        elif len(detections) == 0:
             self.set_state("LANE_FOLLOWING")
 
 

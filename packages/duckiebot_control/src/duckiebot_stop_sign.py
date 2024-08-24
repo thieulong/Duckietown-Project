@@ -2,6 +2,7 @@
 
 import rospy
 from duckietown_msgs.msg import AprilTagDetectionArray, Twist2DStamped, FSMState
+from sensor_msgs.msg import Range
 from datetime import datetime, timedelta
 
 class StopSignNode:
@@ -9,6 +10,7 @@ class StopSignNode:
         rospy.init_node('stop_sign_node')
 
         rospy.Subscriber('/duckiebot/apriltag_detector_node/detections', AprilTagDetectionArray, self.tag_callback)
+        rospy.Subscriber('/duckiebot/front_center_tof_driver_node/range', Range, self.tof_callback)
 
         self.velocity_pub = rospy.Publisher('/duckiebot/car_cmd_switch_node/cmd', Twist2DStamped, queue_size=1)
         self.mode_pub = rospy.Publisher('/duckiebot/fsm_node/mode', FSMState, queue_size=1)
@@ -18,6 +20,13 @@ class StopSignNode:
         self.stop_sign_detected = False
         self.last_detection_time = None
         self.ignore_duration = timedelta(seconds=3)  
+
+        self.distance = None
+        self.distance_threshold = 0.1
+        self.obstacle_detected = False
+
+    def tof_callback(self, msg):
+        self.distance = float(msg.range)
 
     def enable_lane_controller(self):
         mode_msg = FSMState()
@@ -51,6 +60,11 @@ class StopSignNode:
                             self.stop_sign_detected = True
                             self.last_detection_time = now
                     break
+        elif len(tag_array.detections) == 0:
+            if self.distance < self.distance_threshold:
+                self.obstacle_detected = True
+            else:
+                self.obstacle_detected = False
 
     def main(self):
         rate = rospy.Rate(10)  
@@ -60,6 +74,10 @@ class StopSignNode:
                 self.stop_duckiebot(duration=3)
                 self.enable_lane_controller()
                 self.stop_sign_detected = False
+            # if self.obstacle_detected == True:
+            #     self.disable_lane_controller()
+            # elif self.obstacle_detected == False:
+            #     self.enable_lane_controller()
             rate.sleep()
 
 if __name__ == '__main__':
