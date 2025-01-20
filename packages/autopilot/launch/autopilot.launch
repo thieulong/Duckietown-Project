@@ -29,4 +29,12 @@
 
   	</include>
 
+	<!-- Custom intersection navigation logic -->
+	<group ns="$(env VEHICLE_NAME)">
+        <node name="stop_line_node" pkg="duckiebot_control" type="stop_line.py" output="screen"/>
+            <rosparam command="load" file="$(find duckiebot_control)/config/default.yaml"/>
+
+        <node name="autopilot_node" pkg="autopilot" type="autopilot.py" output="screen"/>
+    </group>
+
 </launch>
